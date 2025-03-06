@@ -23,7 +23,13 @@ public class BankAccount {
 
     public void deposit(Money amount) {
         if (amount.getAmount() > 0) {
-            this.balance = new Money(amount.getAmount() + balance.getAmount());
+            this.balance = this.balance.add(amount);
+        }
+    }
+
+    public void withdraw(Money amount) {
+        if (amount.getAmount() > 0 && balance.getAmount() >= amount.getAmount()) {
+            this.balance = this.balance.subtract(amount);
         }
     }
 }
