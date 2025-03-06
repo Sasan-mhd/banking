@@ -32,4 +32,11 @@ public class BankAccount {
             this.balance = this.balance.subtract(amount);
         }
     }
+
+    public void transfer(BankAccount recipientAccount, Money amount) {
+        if (amount.getAmount() > 0 && this.balance.getAmount() >= amount.getAmount()) {
+            this.withdraw(amount);
+            recipientAccount.deposit(amount);
+        }
+    }
 }
