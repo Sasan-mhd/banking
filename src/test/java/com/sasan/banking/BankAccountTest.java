@@ -16,6 +16,4 @@ public class BankAccountTest {
         assertEquals(1000.00, account.getBalance().getAmount());
     }
 
-
-
 }
