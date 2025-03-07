@@ -21,22 +21,30 @@ public class BankAccount {
         return balance;
     }
 
-    public void deposit(Money amount) {
+    public synchronized void deposit(Money amount) {
         if (amount.getAmount() > 0) {
             this.balance = this.balance.add(amount);
         }
     }
 
-    public void withdraw(Money amount) {
-        if (amount.getAmount() > 0 && balance.getAmount() >= amount.getAmount()) {
+    public synchronized void withdraw(Money amount) throws InsufficientAmountException {
+        if (amount.getAmount() > 0) {
+            if (balance.getAmount() < amount.getAmount()) {
+                throw new InsufficientAmountException();
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             this.balance = this.balance.subtract(amount);
         }
     }
 
-    public void transfer(BankAccount recipientAccount, Money amount) {
-        if (amount.getAmount() > 0 && this.balance.getAmount() >= amount.getAmount()) {
-            this.withdraw(amount);
-            recipientAccount.deposit(amount);
-        }
+    public void transfer(BankAccount recipientAccount, Money amount) throws InsufficientAmountException {
+        withdraw(amount);
+        recipientAccount.deposit(amount);
     }
+
+
 }
