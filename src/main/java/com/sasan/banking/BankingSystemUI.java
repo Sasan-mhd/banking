@@ -59,8 +59,12 @@ public class BankingSystemUI {
         double initialBalance = scanner.nextDouble();
         scanner.nextLine(); // Consume newline left-over
 
-        bank.createAccount(new AccountNumber(accountNumber), accountHolderName, new Money(initialBalance));
-        System.out.println("Account created successfully.");
+        try {
+            bank.createAccount(new AccountNumber(accountNumber), accountHolderName, new Money(initialBalance));
+            System.out.println("Account created successfully.");
+        } catch (AccountNumberAlreadyExistsException e) {
+            System.out.println("Account number already exists.");
+        }
     }
 
     private void deposit() {
@@ -70,8 +74,12 @@ public class BankingSystemUI {
         double amount = scanner.nextDouble();
         scanner.nextLine(); // Consume newline left-over
 
-        bank.deposit(new AccountNumber(accountNumber), new Money(amount));
-        System.out.println("Deposit successful.");
+        try {
+            bank.deposit(new AccountNumber(accountNumber), new Money(amount));
+            System.out.println("Deposit successful.");
+        } catch (AccountDoesNotExistException e) {
+            System.out.println("Account doesn't exist.");
+        }
     }
 
     private void withdraw() {
@@ -86,6 +94,8 @@ public class BankingSystemUI {
             System.out.println("Withdrawal successful.");
         } catch (InsufficientAmountException e) {
             System.out.println("Insufficient balance.");
+        } catch (AccountDoesNotExistException e) {
+            System.out.println("Account doesn't exist.");
         }
     }
 
@@ -103,6 +113,8 @@ public class BankingSystemUI {
             System.out.println("Transfer successful.");
         } catch (InsufficientAmountException e) {
             System.out.println("Insufficient balance.");
+        } catch (AccountDoesNotExistException e) {
+            System.out.println("Account doesn't exist.");
         }
     }
 
@@ -112,7 +124,7 @@ public class BankingSystemUI {
 
         BankAccount account = bank.getAccount(new AccountNumber(accountNumber));
         if (account != null) {
-            System.out.println("Balance: " + account.getBalance().getAmount());
+            System.out.println("Balance: " + account.getBalance().amount());
         } else {
             System.out.println("Account not found.");
         }

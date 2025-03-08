@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class BankAccountTest {
 
-
     @Test
     void shouldCreateAccountWithInitialBalance() {
         TransactionObserver logger = (
@@ -24,8 +23,8 @@ public class BankAccountTest {
 
         BankAccount account = new BankAccount(logger, accountNumber, "John Doe", initialBalance);
 
-        assertEquals("12345", account.getAccountNumber().getNumber());
-        assertEquals(1000.00, account.getBalance().getAmount());
+        assertEquals("12345", account.getAccountNumber().number());
+        assertEquals(1000.00, account.getBalance().amount());
     }
 
     @Test
@@ -44,7 +43,7 @@ public class BankAccountTest {
         Money depositAmount = new Money(500.00);
         account.deposit(UUID.randomUUID().toString(), depositAmount);
 
-        assertEquals(1500.00, account.getBalance().getAmount());
+        assertEquals(1500.00, account.getBalance().amount());
     }
 
     @Test
@@ -63,7 +62,7 @@ public class BankAccountTest {
         Money negativeDeposit = new Money(-500.00);
         account.deposit(UUID.randomUUID().toString(), negativeDeposit);
 
-        assertEquals(1000.00, account.getBalance().getAmount());
+        assertEquals(1000.00, account.getBalance().amount());
     }
 
     @Test
@@ -86,7 +85,7 @@ public class BankAccountTest {
             fail();
         }
 
-        assertEquals(500.00, account.getBalance().getAmount());
+        assertEquals(500.00, account.getBalance().amount());
     }
 
     @Test
@@ -107,7 +106,7 @@ public class BankAccountTest {
             account.withdraw(UUID.randomUUID().toString(), excessiveWithdrawal);
             fail();
         } catch (InsufficientAmountException e) {
-            assertEquals(1000.00, account.getBalance().getAmount());
+            assertEquals(1000.00, account.getBalance().amount());
         }
 
     }
@@ -147,8 +146,8 @@ public class BankAccountTest {
             fail();
         }
 
-        assertEquals(700.00, senderAccount.getBalance().getAmount());
-        assertEquals(800.00, receiverAccount.getBalance().getAmount());
+        assertEquals(700.00, senderAccount.getBalance().amount());
+        assertEquals(800.00, receiverAccount.getBalance().amount());
     }
 
     @Test
@@ -184,8 +183,8 @@ public class BankAccountTest {
             senderAccount.transfer(UUID.randomUUID().toString(), receiverAccount, excessiveTransfer);
             fail();
         } catch (InsufficientAmountException e) {
-            assertEquals(1000.00, senderAccount.getBalance().getAmount());
-            assertEquals(500.00, receiverAccount.getBalance().getAmount());
+            assertEquals(1000.00, senderAccount.getBalance().amount());
+            assertEquals(500.00, receiverAccount.getBalance().amount());
         }
 
     }
@@ -234,9 +233,9 @@ public class BankAccountTest {
         thread2.join();
 
         if (firstThreadExceptionThrown.get()) {
-            assertEquals(500, account.getBalance().getAmount());
+            assertEquals(500, account.getBalance().amount());
         } else if (secondThreadExceptionThrown.get()) {
-            assertEquals(0, account.getBalance().getAmount());
+            assertEquals(0, account.getBalance().amount());
         } else {
             fail();
         }
@@ -291,11 +290,11 @@ public class BankAccountTest {
         thread2.join();
 
         if (firstThreadExceptionThrown.get()) {
-            assertEquals(0.0, account.getBalance().getAmount(), 0.01);
-            assertEquals(1500.00, recipientAccount.getBalance().getAmount(), 0.01);
+            assertEquals(0.0, account.getBalance().amount(), 0.01);
+            assertEquals(1500.00, recipientAccount.getBalance().amount(), 0.01);
         } else if (secondThreadExceptionThrown.get()) {
-            assertEquals(0.0, account.getBalance().getAmount(), 0.01);
-            assertEquals(500.00, recipientAccount.getBalance().getAmount(), 0.01);
+            assertEquals(0.0, account.getBalance().amount(), 0.01);
+            assertEquals(500.00, recipientAccount.getBalance().amount(), 0.01);
         } else {
             fail();
         }

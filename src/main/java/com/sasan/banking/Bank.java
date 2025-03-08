@@ -3,59 +3,73 @@ package com.sasan.banking;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
 public class Bank {
 
-    private Map<AccountNumber, BankAccount> accounts = new HashMap<>();
-
     private TransactionObserver logger;
+    private BankAccountRepository repository;
 
     @Autowired
-    public Bank(TransactionObserver logger) {
+    public Bank(TransactionObserver logger, BankAccountRepository repository) {
         this.logger = logger;
+        this.repository = repository;
     }
 
-    public BankAccount createAccount(AccountNumber accountNumber, String accountHolderName, Money initialBalance) {
-        //TODO: check for existence of accountNumber. . .
+    public BankAccount createAccount(
+            AccountNumber accountNumber,
+            String accountHolderName,
+            Money initialBalance
+    ) throws AccountNumberAlreadyExistsException {
+        if (repository.exist(accountNumber)) {
+            throw new AccountNumberAlreadyExistsException();
+        }
         BankAccount account = new BankAccount(logger, accountNumber, accountHolderName, initialBalance);
-        accounts.put(accountNumber, account);
+        repository.save(account);
         return account;
     }
 
-    public void deposit(AccountNumber accountNumber, Money amount) {
-        BankAccount account = accounts.get(accountNumber);
-        if (account != null) {
-            account.deposit(UUID.randomUUID().toString(), amount);
-        }//TODO: else throw exception. . .
+    public void deposit(AccountNumber accountNumber, Money amount) throws AccountDoesNotExistException {
+        BankAccount account = repository.get(accountNumber);
+        if (account == null) {
+            throw new AccountDoesNotExistException();
+        }
+        account.deposit(UUID.randomUUID().toString(), amount);
+        repository.save(account);
     }
 
-    public void withdraw(AccountNumber accountNumber, Money amount) throws InsufficientAmountException {
-        BankAccount account = accounts.get(accountNumber);
-        if (account != null) {
-            account.withdraw(UUID.randomUUID().toString(), amount);
-        }//TODO: else throw exception . . .
+    public void withdraw(
+            AccountNumber accountNumber,
+            Money amount
+    ) throws InsufficientAmountException, AccountDoesNotExistException {
+        BankAccount account = repository.get(accountNumber);
+        if (account == null) {
+            throw new AccountDoesNotExistException();
+        }
+        account.withdraw(UUID.randomUUID().toString(), amount);
+        repository.save(account);
     }
 
     public void transfer(
             AccountNumber senderAccountNumber,
             AccountNumber recipientAccountNumber,
             Money amount
-    ) throws InsufficientAmountException {
+    ) throws InsufficientAmountException, AccountDoesNotExistException {
 
-        BankAccount senderAccount = accounts.get(senderAccountNumber);
-        BankAccount recipientAccount = accounts.get(recipientAccountNumber);
+        BankAccount senderAccount = repository.get(senderAccountNumber);
+        BankAccount recipientAccount = repository.get(recipientAccountNumber);
 
-        if (senderAccount != null && recipientAccount != null) {
-            senderAccount.transfer(UUID.randomUUID().toString(), recipientAccount, amount);
-        }//TODO: else throw exception. . .
+        if (senderAccount == null || recipientAccount == null) {
+            throw new AccountDoesNotExistException();
+        }
+        senderAccount.transfer(UUID.randomUUID().toString(), recipientAccount, amount);
+        repository.save(senderAccount);
+        repository.save(recipientAccount);
     }
 
 
     public BankAccount getAccount(AccountNumber accountNumber) {
-        return accounts.get(accountNumber);
+        return repository.get(accountNumber);
     }
 }

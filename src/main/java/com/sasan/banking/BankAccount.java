@@ -29,7 +29,7 @@ public class BankAccount {
 
     private void notifyObservers(String transactionId, TransactionType transactionType, double amount) {
         for (TransactionObserver observer : observers) {
-            observer.onTransaction(transactionId, accountNumber.getNumber(), transactionType, amount);
+            observer.onTransaction(transactionId, accountNumber.number(), transactionType, amount);
         }
     }
 
@@ -42,23 +42,23 @@ public class BankAccount {
     }
 
     public synchronized void deposit(String transactionId, Money amount) {
-        if (amount.getAmount() > 0) {
+        if (amount.amount() > 0) {
             if (balance == null) {
                 this.balance = amount;
             } else {
                 this.balance = this.balance.add(amount);
             }
-            notifyObservers(transactionId, TransactionType.CREDIT, amount.getAmount());
+            notifyObservers(transactionId, TransactionType.CREDIT, amount.amount());
         }
     }
 
     public synchronized void withdraw(String transactionId, Money amount) throws InsufficientAmountException {
-        if (amount.getAmount() > 0) {
-            if (balance.getAmount() < amount.getAmount()) {
+        if (amount.amount() > 0) {
+            if (balance.amount() < amount.amount()) {
                 throw new InsufficientAmountException();
             }
             this.balance = this.balance.subtract(amount);
-            notifyObservers(transactionId, TransactionType.DEBIT, amount.getAmount());
+            notifyObservers(transactionId, TransactionType.DEBIT, amount.amount());
 
         }
     }

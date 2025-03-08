@@ -1,21 +1,33 @@
 package com.sasan.banking;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 
 import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@SpringBootTest(properties = "ui.enabled=false")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class BankTest {
+
+    @Autowired
+    private Bank bank;
 
     @Test
     void shouldCreateNewAccount() {
-        Bank bank = new Bank(new TransactionLogger("transaction.log"));
         AccountNumber accountNumber = new AccountNumber("12345");
         String accountHolderName = "John Doe";
         Money initialBalance = new Money(1000.00);
 
-        BankAccount account = bank.createAccount(accountNumber, accountHolderName, initialBalance);
+        BankAccount account = null;
+        try {
+            account = bank.createAccount(accountNumber, accountHolderName, initialBalance);
+        } catch (AccountNumberAlreadyExistsException e) {
+            fail();
+        }
 
         assertNotNull(account);
         assertEquals(accountNumber, account.getAccountNumber());
@@ -26,41 +38,52 @@ public class BankTest {
     @Test
     void shouldDepositIntoAccount() {
 
-        Bank bank = new Bank(new TransactionLogger("transaction.log"));
         AccountNumber accountNumber = new AccountNumber("12345");
         String accountHolderName = "John Doe";
         Money initialBalance = new Money(1000.00);
         Money depositAmount = new Money(500.00);
 
-        BankAccount account = bank.createAccount(accountNumber, accountHolderName, initialBalance);
+        try {
+            bank.createAccount(accountNumber, accountHolderName, initialBalance);
+        } catch (AccountNumberAlreadyExistsException e) {
+            fail();
+        }
 
-        bank.deposit(accountNumber, depositAmount);
+        try {
+            bank.deposit(accountNumber, depositAmount);
+        } catch (AccountDoesNotExistException e) {
+            fail();
+        }
 
+        BankAccount account = bank.getAccount(accountNumber);
         assertEquals(initialBalance.add(depositAmount), account.getBalance());
     }
 
     @Test
     void shouldWithdrawFromAccount() {
-        Bank bank = new Bank(new TransactionLogger("transaction.log"));
         AccountNumber accountNumber = new AccountNumber("12345");
         String accountHolderName = "John Doe";
         Money initialBalance = new Money(1000.00);
         Money withdrawalAmount = new Money(500.00);
 
-        BankAccount account = bank.createAccount(accountNumber, accountHolderName, initialBalance);
-
         try {
-            bank.withdraw(accountNumber, withdrawalAmount);
-        } catch (InsufficientAmountException e) {
+            bank.createAccount(accountNumber, accountHolderName, initialBalance);
+        } catch (AccountNumberAlreadyExistsException e) {
             fail();
         }
 
+        try {
+            bank.withdraw(accountNumber, withdrawalAmount);
+        } catch (InsufficientAmountException | AccountDoesNotExistException e) {
+            fail();
+        }
+
+        BankAccount account = bank.getAccount(accountNumber);
         assertEquals(initialBalance.subtract(withdrawalAmount), account.getBalance());
     }
 
     @Test
     void shouldTransferBetweenAccounts() {
-        Bank bank = new Bank(new TransactionLogger("transaction.log"));
         AccountNumber senderAccountNumber = new AccountNumber("12345");
         String senderAccountHolderName = "John Doe";
         Money senderInitialBalance = new Money(1000.00);
@@ -71,15 +94,21 @@ public class BankTest {
 
         Money transferAmount = new Money(500.00);
 
-        BankAccount senderAccount = bank.createAccount(senderAccountNumber, senderAccountHolderName, senderInitialBalance);
-        BankAccount recipientAccount = bank.createAccount(recipientAccountNumber, recipientAccountHolderName, recipientInitialBalance);
-
         try {
-            bank.transfer(senderAccountNumber, recipientAccountNumber, transferAmount);
-        } catch (InsufficientAmountException e) {
+            bank.createAccount(senderAccountNumber, senderAccountHolderName, senderInitialBalance);
+            bank.createAccount(recipientAccountNumber, recipientAccountHolderName, recipientInitialBalance);
+        } catch (AccountNumberAlreadyExistsException e) {
             fail();
         }
 
+        try {
+            bank.transfer(senderAccountNumber, recipientAccountNumber, transferAmount);
+        } catch (InsufficientAmountException | AccountDoesNotExistException e) {
+            fail();
+        }
+
+        BankAccount senderAccount = bank.getAccount(senderAccountNumber);
+        BankAccount recipientAccount = bank.getAccount(recipientAccountNumber);
         assertEquals(senderInitialBalance.subtract(transferAmount), senderAccount.getBalance());
         assertEquals(recipientInitialBalance.add(transferAmount), recipientAccount.getBalance());
     }
