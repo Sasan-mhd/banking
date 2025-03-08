@@ -68,11 +68,11 @@ public class BankAccountTest {
         Money excessiveWithdrawal = new Money(1500.00);
         try {
             account.withdraw(excessiveWithdrawal);
-        } catch (Exception e) {
             fail();
+        } catch (InsufficientAmountException e) {
+            assertEquals(1000.00, account.getBalance().getAmount());
         }
 
-        assertEquals(1000.00, account.getBalance().getAmount());
     }
 
     @Test
@@ -109,12 +109,12 @@ public class BankAccountTest {
         Money excessiveTransfer = new Money(1500.00);
         try {
             senderAccount.transfer(receiverAccount, excessiveTransfer);
-        } catch (Exception e) {
             fail();
+        } catch (InsufficientAmountException e) {
+            assertEquals(1000.00, senderAccount.getBalance().getAmount());
+            assertEquals(500.00, receiverAccount.getBalance().getAmount());
         }
 
-        assertEquals(1000.00, senderAccount.getBalance().getAmount());
-        assertEquals(500.00, receiverAccount.getBalance().getAmount());
     }
 
     @Test
