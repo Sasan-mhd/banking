@@ -47,4 +47,7 @@ public class BankAccount {
     }
 
 
+    public String getAccountHolderName() {
+        return accountHolderName;
+    }
 }
