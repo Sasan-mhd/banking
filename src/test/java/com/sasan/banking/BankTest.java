@@ -10,7 +10,7 @@ public class BankTest {
 
     @Test
     void shouldCreateNewAccount() {
-        Bank bank = new Bank();
+        Bank bank = new Bank("transaction.log");
         AccountNumber accountNumber = new AccountNumber("12345");
         String accountHolderName = "John Doe";
         Money initialBalance = new Money(1000.00);
@@ -26,7 +26,7 @@ public class BankTest {
     @Test
     void shouldDepositIntoAccount() {
 
-        Bank bank = new Bank();
+        Bank bank = new Bank("transaction.log");
         AccountNumber accountNumber = new AccountNumber("12345");
         String accountHolderName = "John Doe";
         Money initialBalance = new Money(1000.00);
@@ -41,7 +41,7 @@ public class BankTest {
 
     @Test
     void shouldWithdrawFromAccount() {
-        Bank bank = new Bank();
+        Bank bank = new Bank("transaction.log");
         AccountNumber accountNumber = new AccountNumber("12345");
         String accountHolderName = "John Doe";
         Money initialBalance = new Money(1000.00);
@@ -60,7 +60,7 @@ public class BankTest {
 
     @Test
     void shouldTransferBetweenAccounts() {
-        Bank bank = new Bank();
+        Bank bank = new Bank("transaction.log");
         AccountNumber senderAccountNumber = new AccountNumber("12345");
         String senderAccountHolderName = "John Doe";
         Money senderInitialBalance = new Money(1000.00);

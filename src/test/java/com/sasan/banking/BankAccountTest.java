@@ -2,6 +2,7 @@ package com.sasan.banking;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,7 +27,7 @@ public class BankAccountTest {
         BankAccount account = new BankAccount(accountNumber, "John Doe", initialBalance);
 
         Money depositAmount = new Money(500.00);
-        account.deposit(depositAmount);
+        account.deposit(UUID.randomUUID().toString(), depositAmount);
 
         assertEquals(1500.00, account.getBalance().getAmount());
     }
@@ -38,7 +39,7 @@ public class BankAccountTest {
         BankAccount account = new BankAccount(accountNumber, "John Doe", initialBalance);
 
         Money negativeDeposit = new Money(-500.00);
-        account.deposit(negativeDeposit);
+        account.deposit(UUID.randomUUID().toString(), negativeDeposit);
 
         assertEquals(1000.00, account.getBalance().getAmount());
     }
@@ -51,7 +52,7 @@ public class BankAccountTest {
 
         Money withdrawalAmount = new Money(500.00);
         try {
-            account.withdraw(withdrawalAmount);
+            account.withdraw(UUID.randomUUID().toString(), withdrawalAmount);
         } catch (Exception e) {
             fail();
         }
@@ -67,7 +68,7 @@ public class BankAccountTest {
 
         Money excessiveWithdrawal = new Money(1500.00);
         try {
-            account.withdraw(excessiveWithdrawal);
+            account.withdraw(UUID.randomUUID().toString(), excessiveWithdrawal);
             fail();
         } catch (InsufficientAmountException e) {
             assertEquals(1000.00, account.getBalance().getAmount());
@@ -87,7 +88,7 @@ public class BankAccountTest {
 
         Money transferAmount = new Money(300.00);
         try {
-            senderAccount.transfer(receiverAccount, transferAmount);
+            senderAccount.transfer(UUID.randomUUID().toString(), receiverAccount, transferAmount);
         } catch (Exception e) {
             fail();
         }
@@ -108,7 +109,7 @@ public class BankAccountTest {
 
         Money excessiveTransfer = new Money(1500.00);
         try {
-            senderAccount.transfer(receiverAccount, excessiveTransfer);
+            senderAccount.transfer(UUID.randomUUID().toString(), receiverAccount, excessiveTransfer);
             fail();
         } catch (InsufficientAmountException e) {
             assertEquals(1000.00, senderAccount.getBalance().getAmount());
@@ -132,7 +133,7 @@ public class BankAccountTest {
 
         Thread thread1 = new Thread(() -> {
             try {
-                account.withdraw(firstWithdrawalAmount);
+                account.withdraw(UUID.randomUUID().toString(), firstWithdrawalAmount);
             } catch (InsufficientAmountException e) {
                 firstThreadExceptionThrown.set(true);
             }
@@ -140,7 +141,7 @@ public class BankAccountTest {
 
         Thread thread2 = new Thread(() -> {
             try {
-                account.withdraw(secondWithdrawalAmount);
+                account.withdraw(UUID.randomUUID().toString(), secondWithdrawalAmount);
             } catch (InsufficientAmountException e) {
                 secondThreadExceptionThrown.set(true);
             }
@@ -176,7 +177,7 @@ public class BankAccountTest {
 
         Thread thread1 = new Thread(() -> {
             try {
-                account.withdraw(new Money(1000.00)); // Reduce balance to 0
+                account.withdraw(UUID.randomUUID().toString(), new Money(1000.00)); // Reduce balance to 0
             } catch (InsufficientAmountException e) {
                 firstThreadExceptionThrown.set(true);
             }
@@ -184,7 +185,7 @@ public class BankAccountTest {
 
         Thread thread2 = new Thread(() -> {
             try {
-                account.transfer(recipientAccount, new Money(1000.00));
+                account.transfer(UUID.randomUUID().toString(), recipientAccount, new Money(1000.00));
             } catch (InsufficientAmountException e) {
                 secondThreadExceptionThrown.set(true);
             }
