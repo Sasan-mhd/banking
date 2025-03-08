@@ -1,14 +1,20 @@
 package com.sasan.banking;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+@Service
 public class TransactionLogger implements TransactionObserver {
 
     private final String logFilePath;
 
-    public TransactionLogger(String logFilePath) {
+    @Autowired
+    public TransactionLogger(@Value("${log-file-path}") String logFilePath) {
         this.logFilePath = logFilePath;
     }
 

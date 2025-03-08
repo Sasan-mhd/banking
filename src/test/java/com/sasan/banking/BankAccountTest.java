@@ -5,16 +5,24 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BankAccountTest {
 
+
     @Test
     void shouldCreateAccountWithInitialBalance() {
+        TransactionObserver logger = (
+                transactionId,
+                accountNumber,
+                transactionType,
+                amount
+        ) -> {
+        };
         AccountNumber accountNumber = new AccountNumber("12345");
         Money initialBalance = new Money(1000.00);
-        BankAccount account = new BankAccount(accountNumber, "John Doe", initialBalance);
+
+        BankAccount account = new BankAccount(logger, accountNumber, "John Doe", initialBalance);
 
         assertEquals("12345", account.getAccountNumber().getNumber());
         assertEquals(1000.00, account.getBalance().getAmount());
@@ -22,9 +30,16 @@ public class BankAccountTest {
 
     @Test
     void shouldDepositMoneyIntoAccount() {
+        TransactionObserver logger = (
+                transactionId,
+                accountNumber,
+                transactionType,
+                amount
+        ) -> {
+        };
         AccountNumber accountNumber = new AccountNumber("12345");
         Money initialBalance = new Money(1000.00);
-        BankAccount account = new BankAccount(accountNumber, "John Doe", initialBalance);
+        BankAccount account = new BankAccount(logger, accountNumber, "John Doe", initialBalance);
 
         Money depositAmount = new Money(500.00);
         account.deposit(UUID.randomUUID().toString(), depositAmount);
@@ -34,9 +49,16 @@ public class BankAccountTest {
 
     @Test
     void shouldNotDepositNegativeAmount() {
+        TransactionObserver logger = (
+                transactionId,
+                accountNumber,
+                transactionType,
+                amount
+        ) -> {
+        };
         AccountNumber accountNumber = new AccountNumber("12345");
         Money initialBalance = new Money(1000.00);
-        BankAccount account = new BankAccount(accountNumber, "John Doe", initialBalance);
+        BankAccount account = new BankAccount(logger, accountNumber, "John Doe", initialBalance);
 
         Money negativeDeposit = new Money(-500.00);
         account.deposit(UUID.randomUUID().toString(), negativeDeposit);
@@ -46,9 +68,16 @@ public class BankAccountTest {
 
     @Test
     void shouldWithdrawMoneyFromAccount() {
+        TransactionObserver logger = (
+                transactionId,
+                accountNumber,
+                transactionType,
+                amount
+        ) -> {
+        };
         AccountNumber accountNumber = new AccountNumber("12345");
         Money initialBalance = new Money(1000.00);
-        BankAccount account = new BankAccount(accountNumber, "John Doe", initialBalance);
+        BankAccount account = new BankAccount(logger, accountNumber, "John Doe", initialBalance);
 
         Money withdrawalAmount = new Money(500.00);
         try {
@@ -62,9 +91,16 @@ public class BankAccountTest {
 
     @Test
     void shouldNotWithdrawMoreThanAvailableBalance() {
+        TransactionObserver logger = (
+                transactionId,
+                accountNumber,
+                transactionType,
+                amount
+        ) -> {
+        };
         AccountNumber accountNumber = new AccountNumber("12345");
         Money initialBalance = new Money(1000.00);
-        BankAccount account = new BankAccount(accountNumber, "John Doe", initialBalance);
+        BankAccount account = new BankAccount(logger, accountNumber, "John Doe", initialBalance);
 
         Money excessiveWithdrawal = new Money(1500.00);
         try {
@@ -78,13 +114,31 @@ public class BankAccountTest {
 
     @Test
     void shouldTransferMoneyBetweenAccounts() {
+        TransactionObserver logger = (
+                transactionId,
+                accountNumber,
+                transactionType,
+                amount
+        ) -> {
+        };
+
         AccountNumber senderAccountNumber = new AccountNumber("12345");
         Money senderInitialBalance = new Money(1000.00);
-        BankAccount senderAccount = new BankAccount(senderAccountNumber, "John Doe", senderInitialBalance);
+        BankAccount senderAccount = new BankAccount(
+                logger,
+                senderAccountNumber,
+                "John Doe",
+                senderInitialBalance
+        );
 
         AccountNumber receiverAccountNumber = new AccountNumber("67890");
         Money receiverInitialBalance = new Money(500.00);
-        BankAccount receiverAccount = new BankAccount(receiverAccountNumber, "Jane Smith", receiverInitialBalance);
+        BankAccount receiverAccount = new BankAccount(
+                logger,
+                receiverAccountNumber,
+                "Jane Smith",
+                receiverInitialBalance
+        );
 
         Money transferAmount = new Money(300.00);
         try {
@@ -99,13 +153,31 @@ public class BankAccountTest {
 
     @Test
     void shouldNotTransferMoreThanAvailableBalance() {
+        TransactionObserver logger = (
+                transactionId,
+                accountNumber,
+                transactionType,
+                amount
+        ) -> {
+        };
+
         AccountNumber senderAccountNumber = new AccountNumber("12345");
         Money senderInitialBalance = new Money(1000.00);
-        BankAccount senderAccount = new BankAccount(senderAccountNumber, "John Doe", senderInitialBalance);
+        BankAccount senderAccount = new BankAccount(
+                logger,
+                senderAccountNumber,
+                "John Doe",
+                senderInitialBalance
+        );
 
         AccountNumber receiverAccountNumber = new AccountNumber("67890");
         Money receiverInitialBalance = new Money(500.00);
-        BankAccount receiverAccount = new BankAccount(receiverAccountNumber, "Jane Smith", receiverInitialBalance);
+        BankAccount receiverAccount = new BankAccount(
+                logger,
+                receiverAccountNumber,
+                "Jane Smith",
+                receiverInitialBalance
+        );
 
         Money excessiveTransfer = new Money(1500.00);
         try {
@@ -121,9 +193,17 @@ public class BankAccountTest {
     @Test
     void shouldThrowExceptionOnConcurrentWithdrawalsWithInsufficientBalance() throws InterruptedException {
 
+        TransactionObserver logger = (
+                transactionId,
+                accountNumber,
+                transactionType,
+                amount
+        ) -> {
+        };
+
         AccountNumber accountNumber = new AccountNumber("12345");
         Money initialBalance = new Money(1000.00);
-        BankAccount account = new BankAccount(accountNumber, "John Doe", initialBalance);
+        BankAccount account = new BankAccount(logger, accountNumber, "John Doe", initialBalance);
 
         Money firstWithdrawalAmount = new Money(1000.00);
         Money secondWithdrawalAmount = new Money(500.00);
@@ -164,13 +244,25 @@ public class BankAccountTest {
 
     @Test
     void shouldThrowExceptionOnConcurrentWithdrawalAndTransferWithInsufficientBalance() throws InterruptedException {
+        TransactionObserver logger = (
+                transactionId,
+                accountNumber,
+                transactionType,
+                amount
+        ) -> {
+        };
         AccountNumber accountNumber = new AccountNumber("12345");
         Money initialBalance = new Money(1000.00);
-        BankAccount account = new BankAccount(accountNumber, "John Doe", initialBalance);
+        BankAccount account = new BankAccount(logger, accountNumber, "John Doe", initialBalance);
 
         AccountNumber recipientAccountNumber = new AccountNumber("67890");
         Money recipientInitialBalance = new Money(500.00);
-        BankAccount recipientAccount = new BankAccount(recipientAccountNumber, "Jane Smith", recipientInitialBalance);
+        BankAccount recipientAccount = new BankAccount(
+                logger,
+                recipientAccountNumber,
+                "Jane Smith",
+                recipientInitialBalance
+        );
 
         AtomicBoolean firstThreadExceptionThrown = new AtomicBoolean(false);
         AtomicBoolean secondThreadExceptionThrown = new AtomicBoolean(false);
@@ -207,6 +299,29 @@ public class BankAccountTest {
         } else {
             fail();
         }
+    }
+
+    @Test
+    void shouldNotifyObserversOnDeposit() {
+        AtomicBoolean notified = new AtomicBoolean(false);
+        TransactionObserver logger = (
+                transactionId,
+                accountNumber,
+                transactionType,
+                amount
+        ) -> {
+            notified.set(true);
+        };
+
+        BankAccount account = new BankAccount(
+                logger,
+                new AccountNumber("12345"),
+                "John Doe",
+                new Money(1000.00)
+        );
+        account.deposit(UUID.randomUUID().toString(), new Money(500.00));
+
+        assertTrue(notified.get());
     }
 
 

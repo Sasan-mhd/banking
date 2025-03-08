@@ -1,22 +1,27 @@
 package com.sasan.banking;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-
+@Service
 public class Bank {
 
     private Map<AccountNumber, BankAccount> accounts = new HashMap<>();
-    private final TransactionObserver logger;
 
-    public Bank(String logFilePath) {
-        this.logger = new TransactionLogger(logFilePath);
+    private TransactionObserver logger;
+
+    @Autowired
+    public Bank(TransactionObserver logger) {
+        this.logger = logger;
     }
 
     public BankAccount createAccount(AccountNumber accountNumber, String accountHolderName, Money initialBalance) {
-        BankAccount account = new BankAccount(accountNumber, accountHolderName, initialBalance);
-        account.addObserver(logger);
+        //TODO: check for existence of accountNumber. . .
+        BankAccount account = new BankAccount(logger, accountNumber, accountHolderName, initialBalance);
         accounts.put(accountNumber, account);
         return account;
     }
@@ -25,14 +30,14 @@ public class Bank {
         BankAccount account = accounts.get(accountNumber);
         if (account != null) {
             account.deposit(UUID.randomUUID().toString(), amount);
-        }
+        }//TODO: else throw exception. . .
     }
 
     public void withdraw(AccountNumber accountNumber, Money amount) throws InsufficientAmountException {
         BankAccount account = accounts.get(accountNumber);
         if (account != null) {
             account.withdraw(UUID.randomUUID().toString(), amount);
-        }
+        }//TODO: else throw exception . . .
     }
 
     public void transfer(
@@ -46,7 +51,11 @@ public class Bank {
 
         if (senderAccount != null && recipientAccount != null) {
             senderAccount.transfer(UUID.randomUUID().toString(), recipientAccount, amount);
-        }
+        }//TODO: else throw exception. . .
     }
 
+
+    public BankAccount getAccount(AccountNumber accountNumber) {
+        return accounts.get(accountNumber);
+    }
 }

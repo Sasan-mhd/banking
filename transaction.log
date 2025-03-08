@@ -1,1 +1,4 @@
-TransactionId: 8d2d652a-38ff-4756-9dd7-c59d3a43bddb | AccountNumber: 123456 | Type: CREDIT | Amount: 100.00
+TransactionId: 4e2ebfc0-f5b2-41f4-a9f0-65f7f02270a6 | AccountNumber: 123 | Type: CREDIT | Amount: 1000.00
+TransactionId: 141e53d2-5f8d-49a8-a9db-e35e77241eff | AccountNumber: 456 | Type: CREDIT | Amount: 1200.00
+TransactionId: 9e831098-c9bc-4a98-80a5-1f7f99051c17 | AccountNumber: 123 | Type: DEBIT  | Amount: 200.00
+TransactionId: 9e831098-c9bc-4a98-80a5-1f7f99051c17 | AccountNumber: 456 | Type: CREDIT | Amount: 200.00

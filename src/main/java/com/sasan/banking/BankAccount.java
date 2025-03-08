@@ -2,6 +2,7 @@ package com.sasan.banking;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class BankAccount {
 
@@ -11,13 +12,18 @@ public class BankAccount {
     private final List<TransactionObserver> observers = new ArrayList<>();
 
 
-    public BankAccount(AccountNumber accountNumber, String accountHolderName, Money initialBalance) {
+    public BankAccount(
+            TransactionObserver observer,
+            AccountNumber accountNumber,
+            String accountHolderName,
+            Money initialBalance) {
+        this.addObserver(observer);
         this.accountNumber = accountNumber;
         this.accountHolderName = accountHolderName;
-        this.balance = initialBalance;
+        deposit(UUID.randomUUID().toString(), initialBalance);
     }
 
-    public void addObserver(TransactionObserver observer) {
+    private void addObserver(TransactionObserver observer) {
         observers.add(observer);
     }
 
@@ -37,7 +43,11 @@ public class BankAccount {
 
     public synchronized void deposit(String transactionId, Money amount) {
         if (amount.getAmount() > 0) {
-            this.balance = this.balance.add(amount);
+            if (balance == null) {
+                this.balance = amount;
+            } else {
+                this.balance = this.balance.add(amount);
+            }
             notifyObservers(transactionId, TransactionType.CREDIT, amount.getAmount());
         }
     }
