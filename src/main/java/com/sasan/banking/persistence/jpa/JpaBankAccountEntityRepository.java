@@ -1,5 +1,6 @@
-package com.sasan.banking;
+package com.sasan.banking.persistence.jpa;
 
+import com.sasan.banking.persistence.jpa.model.BankAccountEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

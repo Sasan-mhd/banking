@@ -1,5 +1,11 @@
-package com.sasan.banking;
+package com.sasan.banking.persistence.jpa;
 
+import com.sasan.banking.domain.*;
+import com.sasan.banking.domain.model.AccountNumber;
+import com.sasan.banking.domain.model.BankAccount;
+import com.sasan.banking.domain.model.Money;
+import com.sasan.banking.domain.model.TransactionObserver;
+import com.sasan.banking.persistence.jpa.model.BankAccountEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

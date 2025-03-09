@@ -1,4 +1,4 @@
-package com.sasan.banking;
+package com.sasan.banking.domain.model;
 
 import java.util.ArrayList;
 import java.util.List;

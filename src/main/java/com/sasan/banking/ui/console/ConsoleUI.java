@@ -1,14 +1,20 @@
-package com.sasan.banking;
+package com.sasan.banking.ui.console;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.sasan.banking.domain.AccountDoesNotExistException;
+import com.sasan.banking.domain.AccountNumberAlreadyExistsException;
+import com.sasan.banking.domain.model.InsufficientAmountException;
+import com.sasan.banking.domain.model.AccountNumber;
+import com.sasan.banking.domain.Bank;
+import com.sasan.banking.domain.model.BankAccount;
+import com.sasan.banking.domain.model.Money;
 
 import java.util.Scanner;
 
-public class BankingSystemUI {
+public class ConsoleUI {
     private final Bank bank;
     private final Scanner scanner;
 
-    public BankingSystemUI(Bank bank) {
+    public ConsoleUI(Bank bank) {
         this.bank = bank;
         this.scanner = new Scanner(System.in);
     }

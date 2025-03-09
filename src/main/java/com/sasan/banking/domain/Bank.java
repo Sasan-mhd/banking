@@ -1,5 +1,6 @@
-package com.sasan.banking;
+package com.sasan.banking.domain;
 
+import com.sasan.banking.domain.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

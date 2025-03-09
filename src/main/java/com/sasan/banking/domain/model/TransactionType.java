@@ -1,4 +1,4 @@
-package com.sasan.banking;
+package com.sasan.banking.domain.model;
 
 public enum TransactionType {
     DEBIT, CREDIT

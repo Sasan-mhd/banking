@@ -1,4 +1,4 @@
-package com.sasan.banking;
+package com.sasan.banking.persistence.jpa.model;
 
 import jakarta.persistence.*;
 

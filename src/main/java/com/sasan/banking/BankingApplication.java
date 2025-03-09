@@ -1,19 +1,21 @@
 package com.sasan.banking;
 
+import com.sasan.banking.domain.Bank;
+import com.sasan.banking.ui.console.ConsoleUI;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
 public class BankingApplication {
 
 	@Bean
-	@ConditionalOnProperty(name = "ui.enabled", havingValue = "true", matchIfMissing = true)	public CommandLineRunner runUI(Bank bank) {
+	@ConditionalOnProperty(name = "ui.enabled", havingValue = "true", matchIfMissing = true)
+	public CommandLineRunner runUI(Bank bank) {
 		return args -> {
-			BankingSystemUI ui = new BankingSystemUI(bank);
+			ConsoleUI ui = new ConsoleUI(bank);
 			ui.run();
 		};
 	}

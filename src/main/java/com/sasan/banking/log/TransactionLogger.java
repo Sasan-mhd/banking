@@ -1,5 +1,7 @@
-package com.sasan.banking;
+package com.sasan.banking.log;
 
+import com.sasan.banking.domain.model.TransactionObserver;
+import com.sasan.banking.domain.model.TransactionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

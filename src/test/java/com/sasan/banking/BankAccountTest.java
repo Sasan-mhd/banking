@@ -1,5 +1,6 @@
 package com.sasan.banking;
 
+import com.sasan.banking.domain.model.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
