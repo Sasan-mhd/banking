@@ -59,9 +59,8 @@ public class JpaBankAccountRepository implements BankAccountRepository {
             jpaRepository.save(existingAccount);
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new ConcurrentTransactionException();
-        } catch (Exception e){
-            System.out.println("FUCK"+e.getMessage());
-            throw new RuntimeException();
+//        } catch (Exception e){
+//            throw new RuntimeException();
         }
     }
 
