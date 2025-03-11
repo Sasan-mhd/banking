@@ -47,34 +47,40 @@ public class Bank {
             AccountNumber accountNumber,
             Money amount
     ) throws AccountException {
-        BankTransaction transaction = new BankDepositTransaction(this.repository, accountNumber, amount);
-        BankTransactionRetryDecorator retryDecorator = new BankTransactionRetryDecorator(transaction, 30);
-        retryDecorator.execute();
-        String transactionId = UUID.randomUUID().toString();
-        observer.onTransaction(
-                transactionId,
-                accountNumber.number(),
-                TransactionType.CREDIT,
-                amount.amount()
-        );
-        System.out.println(transactionId +" "+repository.get(accountNumber).getBalance());
+        synchronized (accountNumber.number()) {
+            System.out.println("Thread:" + Thread.currentThread().getId() + " bank deposit started");
+            BankTransaction transaction = new BankDepositTransaction(this.repository, accountNumber, amount);
+            BankTransactionRetryDecorator retryDecorator = new BankTransactionRetryDecorator(transaction, 30);
+            retryDecorator.execute();
+            String transactionId = UUID.randomUUID().toString();
+            observer.onTransaction(
+                    transactionId,
+                    accountNumber.number(),
+                    TransactionType.CREDIT,
+                    amount.amount()
+            );
+            System.out.println("Thread:" + Thread.currentThread().getId() + " bank deposit ended ===> transactionId:" + transactionId + " " + repository.get(accountNumber).getBalance());
+        }
     }
 
     public void withdraw(
             AccountNumber accountNumber,
             Money amount
     ) throws AccountException {
-        BankTransaction transaction = new BankWithdrawTransaction(this.repository, accountNumber, amount);
-        BankTransactionRetryDecorator retryDecorator = new BankTransactionRetryDecorator(transaction, 30);
-        retryDecorator.execute();
-        String transactionId = UUID.randomUUID().toString();
-        observer.onTransaction(
-                transactionId,
-                accountNumber.number(),
-                TransactionType.DEBIT,
-                amount.amount()
-        );
-        System.out.println(transactionId +" "+repository.get(accountNumber).getBalance());
+        synchronized (accountNumber.number()) {
+            System.out.println("Thread:" + Thread.currentThread().getId() + " bank withdraw started");
+            BankTransaction transaction = new BankWithdrawTransaction(this.repository, accountNumber, amount);
+            BankTransactionRetryDecorator retryDecorator = new BankTransactionRetryDecorator(transaction, 30);
+            retryDecorator.execute();
+            String transactionId = UUID.randomUUID().toString();
+            observer.onTransaction(
+                    transactionId,
+                    accountNumber.number(),
+                    TransactionType.DEBIT,
+                    amount.amount()
+            );
+            System.out.println("Thread:" + Thread.currentThread().getId() + " bank withdraw ended ===> transactionId:" + transactionId + " " + repository.get(accountNumber).getBalance());
+        }
     }
 
     public void transfer(
@@ -83,27 +89,42 @@ public class Bank {
             Money amount
     ) throws AccountException {
 
-        BankTransaction transaction = new BankTransferTransaction(
-                repository,
-                senderAccountNumber,
-                recipientAccountNumber,
-                amount
-        );
-        BankTransactionRetryDecorator retryDecorator = new BankTransactionRetryDecorator(transaction, 30);
-        retryDecorator.execute();
-        String transactionId = UUID.randomUUID().toString();
-        observer.onTransaction(
-                transactionId,
-                senderAccountNumber.number(),
-                TransactionType.DEBIT,
-                amount.amount()
-        );
-        observer.onTransaction(
-                transactionId,
-                recipientAccountNumber.number(),
-                TransactionType.CREDIT,
-                amount.amount()
-        );
+        String firstAccountLocked;
+        String secondAccountLocked;
+
+        if (senderAccountNumber.number().compareTo(recipientAccountNumber.number()) > 0) {
+            firstAccountLocked = senderAccountNumber.number();
+            secondAccountLocked = recipientAccountNumber.number();
+        } else {
+            secondAccountLocked = senderAccountNumber.number();
+            firstAccountLocked = recipientAccountNumber.number();
+        }
+        synchronized (firstAccountLocked) {
+            synchronized (secondAccountLocked) {
+
+                BankTransaction transaction = new BankTransferTransaction(
+                        repository,
+                        senderAccountNumber,
+                        recipientAccountNumber,
+                        amount
+                );
+                BankTransactionRetryDecorator retryDecorator = new BankTransactionRetryDecorator(transaction, 30);
+                retryDecorator.execute();
+                String transactionId = UUID.randomUUID().toString();
+                observer.onTransaction(
+                        transactionId,
+                        senderAccountNumber.number(),
+                        TransactionType.DEBIT,
+                        amount.amount()
+                );
+                observer.onTransaction(
+                        transactionId,
+                        recipientAccountNumber.number(),
+                        TransactionType.CREDIT,
+                        amount.amount()
+                );
+            }
+        }
 
     }
 

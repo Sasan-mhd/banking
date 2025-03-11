@@ -25,97 +25,87 @@ class ConcurrencyLoadTest {
     @Autowired
     private Bank bank;
 
-//    @Test
-//    void testConcurrentDepositsAndWithdrawals() throws InterruptedException, ExecutionException, AccountException {
-//        AccountNumber accountNumber = new AccountNumber("88888");
-//        bank.createAccount(accountNumber, "Test User", new Money(1000));
-//
-//        int numThreads = 8;
-//        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-//        CountDownLatch latch = new CountDownLatch(numThreads);
-//
-//        List<Future<Void>> futures = new ArrayList<>();
-//
-//        for (int i = 0; i < numThreads / 2; i++) {
-//            int finalI = i;
-//            futures.add(executor.submit(() -> {
-//                System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")) +" before deposit" + finalI + ": " + bank.getAccount(accountNumber).getBalance());
-//                bank.deposit(accountNumber, new Money(10));
-//                System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")) +" after deposit" + finalI + ": " + bank.getAccount(accountNumber).getBalance());
-//                try {
-//                    Thread.sleep(10); // Small delay to simulate real-world timing
-//                } catch (InterruptedException e) {
-//                    Thread.currentThread().interrupt();
-//                }
-//                latch.countDown();
-//                return null;
-//            }));
-//            futures.add(executor.submit(() -> {
-//                System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")) +" before withdraw" +  finalI+ ": " + bank.getAccount(accountNumber).getBalance());
-//                bank.withdraw(accountNumber, new Money(10));
-//                System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")) +" after withdraw" + finalI+ ": " + bank.getAccount(accountNumber).getBalance());
-//                try {
-//                    Thread.sleep(10); // Small delay to simulate real-world timing
-//                } catch (InterruptedException e) {
-//                    Thread.currentThread().interrupt();
-//                }
-//                latch.countDown();
-//                return null;
-//            }));
-//        }
-//
-//        latch.await(10, TimeUnit.SECONDS);
-//
-//        for (Future<Void> future : futures) {
-//            future.get();
-//        }
-//
-//        executor.shutdown();
-//        assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS));
-//
-//        assertEquals(new Money(1000), bank.getAccount(accountNumber).getBalance(),
-//                "Balance should remain unchanged after equal concurrent deposits and withdrawals");
-//    }
-//
-//    @Test
-//    void testConcurrentTransfers() throws InterruptedException, ExecutionException, AccountException {
-//        AccountNumber account1 = new AccountNumber("12345");
-//        AccountNumber account2 = new AccountNumber("67890");
-//        bank.createAccount(account1, "User 1", new Money(1000));
-//        bank.createAccount(account2, "User 2", new Money(1000));
-//
-//        int numTransfers = 6;
-//        ExecutorService executor = Executors.newFixedThreadPool(6);
-//        CountDownLatch latch = new CountDownLatch(numTransfers * 2);
-//
-//        for (int i = 0; i < numTransfers; i++) {
-//            executor.submit(() -> {
-//                try {
-//                    bank.transfer(account1, account2, new Money(1));
-//                } catch (AccountException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                latch.countDown();
-//            });
-//            executor.submit(() -> {
-//                try {
-//                    bank.transfer(account2, account1, new Money(1));
-//                } catch (AccountException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                latch.countDown();
-//            });
-//        }
-//
-//        latch.await(30, TimeUnit.SECONDS);
-//        executor.shutdown();
-//        assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS));
-//
-//        assertEquals(new Money(1000), bank.getAccount(account1).getBalance(),
-//                "Account 1 balance should remain unchanged after equal back-and-forth transfers");
-//        assertEquals(new Money(1000), bank.getAccount(account2).getBalance(),
-//                "Account 2 balance should remain unchanged after equal back-and-forth transfers");
-//    }
+    @Test
+    void testConcurrentDepositsAndWithdrawals() throws InterruptedException, ExecutionException, AccountException {
+        AccountNumber accountNumber = new AccountNumber("88888");
+        bank.createAccount(accountNumber, "Test User", new Money(1000));
+
+        int numThreads = 1000;
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        CountDownLatch latch = new CountDownLatch(numThreads);
+
+        List<Future<Void>> futures = new ArrayList<>();
+
+        for (int i = 0; i < numThreads / 2; i++) {
+            int finalI = i;
+            futures.add(executor.submit(() -> {
+                System.out.println("Thread:"+Thread.currentThread().getId()+"future_deposit"+finalI+"started.");
+                bank.deposit(accountNumber, new Money(10));
+                System.out.println("Thread:"+Thread.currentThread().getId()+"future_deposit"+finalI+"ended.");
+                latch.countDown();
+                return null;
+            }));
+            futures.add(executor.submit(() -> {
+                System.out.println("Thread:"+Thread.currentThread().getId()+"future_withdraw"+finalI+"started.");
+                bank.withdraw(accountNumber, new Money(10));
+                System.out.println("Thread:"+Thread.currentThread().getId()+"future_withdraw"+finalI+"ended.");
+                latch.countDown();
+                return null;
+            }));
+        }
+
+        latch.await(10, TimeUnit.SECONDS);
+
+        for (Future<Void> future : futures) {
+            future.get();
+        }
+
+        executor.shutdown();
+        assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS));
+
+        assertEquals(new Money(1000), bank.getAccount(accountNumber).getBalance(),
+                "Balance should remain unchanged after equal concurrent deposits and withdrawals");
+    }
+
+    @Test
+    void testConcurrentTransfers() throws InterruptedException, ExecutionException, AccountException {
+        AccountNumber account1 = new AccountNumber("12345");
+        AccountNumber account2 = new AccountNumber("67890");
+        bank.createAccount(account1, "User 1", new Money(1000));
+        bank.createAccount(account2, "User 2", new Money(1000));
+
+        int numTransfers = 600;
+        ExecutorService executor = Executors.newFixedThreadPool(6);
+        CountDownLatch latch = new CountDownLatch(numTransfers * 2);
+
+        for (int i = 0; i < numTransfers; i++) {
+            executor.submit(() -> {
+                try {
+                    bank.transfer(account1, account2, new Money(1));
+                } catch (AccountException e) {
+                    throw new RuntimeException(e);
+                }
+                latch.countDown();
+            });
+            executor.submit(() -> {
+                try {
+                    bank.transfer(account2, account1, new Money(1));
+                } catch (AccountException e) {
+                    throw new RuntimeException(e);
+                }
+                latch.countDown();
+            });
+        }
+
+        latch.await(30, TimeUnit.SECONDS);
+        executor.shutdown();
+        assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS));
+
+        assertEquals(new Money(1000), bank.getAccount(account1).getBalance(),
+                "Account 1 balance should remain unchanged after equal back-and-forth transfers");
+        assertEquals(new Money(1000), bank.getAccount(account2).getBalance(),
+                "Account 2 balance should remain unchanged after equal back-and-forth transfers");
+    }
 
 //    @Test
 //    void testConcurrentAccountCreation() throws InterruptedException, ExecutionException {
