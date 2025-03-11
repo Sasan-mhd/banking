@@ -18,22 +18,18 @@ public class BankTransactionRetryDecorator implements BankTransaction {
     @Override
     public void execute() throws AccountException {
         int retries = 0;
-        long delay = 100;
-        long maxDelay=1000;
         while (retries < maxRetries) {
             try {
                 transaction.execute();
                 return;
             } catch (ConcurrentTransactionException e) {
                 retries++;
-                System.out.println("retries:"+retries);
+//                System.out.println("retries:"+retries);
                 try {
-                    Thread.sleep(delay);
+                    Thread.sleep(100);
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
-                delay = Math.min(delay * 2, maxDelay); // Exponential backoff
-
             }
         }
         throw new RetryFailedException();
