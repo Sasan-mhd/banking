@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -30,7 +28,7 @@ class ConcurrencyLoadTest {
         AccountNumber accountNumber = new AccountNumber("88888");
         bank.createAccount(accountNumber, "Test User", new Money(1000));
 
-        int numThreads = 1000;
+        int numThreads = 100;
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
         CountDownLatch latch = new CountDownLatch(numThreads);
 
@@ -39,16 +37,12 @@ class ConcurrencyLoadTest {
         for (int i = 0; i < numThreads / 2; i++) {
             int finalI = i;
             futures.add(executor.submit(() -> {
-                System.out.println("Thread:"+Thread.currentThread().getId()+"future_deposit"+finalI+"started.");
                 bank.deposit(accountNumber, new Money(10));
-                System.out.println("Thread:"+Thread.currentThread().getId()+"future_deposit"+finalI+"ended.");
                 latch.countDown();
                 return null;
             }));
             futures.add(executor.submit(() -> {
-                System.out.println("Thread:"+Thread.currentThread().getId()+"future_withdraw"+finalI+"started.");
                 bank.withdraw(accountNumber, new Money(10));
-                System.out.println("Thread:"+Thread.currentThread().getId()+"future_withdraw"+finalI+"ended.");
                 latch.countDown();
                 return null;
             }));

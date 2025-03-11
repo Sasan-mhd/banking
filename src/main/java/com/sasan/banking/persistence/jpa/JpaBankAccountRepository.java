@@ -50,18 +50,18 @@ public class JpaBankAccountRepository implements BankAccountRepository {
                     )
             );
         }
+
     }
 
     private void update(BankAccount bankAccount, BankAccountEntity existingAccount) throws ConcurrentTransactionException {
-
         existingAccount.setBalance(bankAccount.getBalance().amount());
         try {
             jpaRepository.save(existingAccount);
+
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new ConcurrentTransactionException();
-//        } catch (Exception e){
-//            throw new RuntimeException();
         }
+
     }
 
     @Override
