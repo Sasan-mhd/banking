@@ -1,9 +1,9 @@
 package com.sasan.banking;
 
-import com.sasan.banking.domain.*;
+import com.sasan.banking.application.Bank;
+import com.sasan.banking.domain.model.AccountException;
 import com.sasan.banking.domain.model.AccountNumber;
 import com.sasan.banking.domain.model.BankAccount;
-import com.sasan.banking.domain.model.InsufficientAmountException;
 import com.sasan.banking.domain.model.Money;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class BankTest {
         BankAccount account = null;
         try {
             account = bank.createAccount(accountNumber, accountHolderName, initialBalance);
-        } catch (AccountNumberAlreadyExistsException e) {
+        } catch (AccountException e) {
             fail();
         }
 
@@ -50,13 +50,13 @@ public class BankTest {
 
         try {
             bank.createAccount(accountNumber, accountHolderName, initialBalance);
-        } catch (AccountNumberAlreadyExistsException e) {
+        } catch (AccountException e) {
             fail();
         }
 
         try {
             bank.deposit(accountNumber, depositAmount);
-        } catch (AccountDoesNotExistException e) {
+        } catch (AccountException e) {
             fail();
         }
 
@@ -73,13 +73,13 @@ public class BankTest {
 
         try {
             bank.createAccount(accountNumber, accountHolderName, initialBalance);
-        } catch (AccountNumberAlreadyExistsException e) {
+        } catch (AccountException e) {
             fail();
         }
 
         try {
             bank.withdraw(accountNumber, withdrawalAmount);
-        } catch (InsufficientAmountException | AccountDoesNotExistException e) {
+        } catch (AccountException e) {
             fail();
         }
 
@@ -102,13 +102,13 @@ public class BankTest {
         try {
             bank.createAccount(senderAccountNumber, senderAccountHolderName, senderInitialBalance);
             bank.createAccount(recipientAccountNumber, recipientAccountHolderName, recipientInitialBalance);
-        } catch (AccountNumberAlreadyExistsException e) {
+        } catch (AccountException e) {
             fail();
         }
 
         try {
             bank.transfer(senderAccountNumber, recipientAccountNumber, transferAmount);
-        } catch (InsufficientAmountException | AccountDoesNotExistException e) {
+        } catch (AccountException e) {
             fail();
         }
 

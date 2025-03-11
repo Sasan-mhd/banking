@@ -1,6 +1,6 @@
 package com.sasan.banking;
 
-import com.sasan.banking.domain.Bank;
+import com.sasan.banking.application.Bank;
 import com.sasan.banking.ui.console.ConsoleUI;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;

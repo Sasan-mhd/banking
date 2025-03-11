@@ -8,6 +8,8 @@ public class BankAccountEntity {
     private String accountNumber;
     private String accountHolderName;
     private double balance;
+    @Version
+    private Long version;
 
     private BankAccountEntity(){}
     public BankAccountEntity(String accountNumber, String accountHolderName, double balance) {
@@ -26,5 +28,13 @@ public class BankAccountEntity {
 
     public double getBalance() {
         return balance;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
     }
 }

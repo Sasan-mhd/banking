@@ -1,28 +1,25 @@
 package com.sasan.banking;
 
-import com.sasan.banking.domain.model.*;
+import com.sasan.banking.domain.model.AccountNumber;
+import com.sasan.banking.domain.model.BankAccount;
+import com.sasan.banking.domain.model.InsufficientAmountException;
+import com.sasan.banking.domain.model.Money;
 import org.junit.jupiter.api.Test;
 
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BankAccountTest {
 
     @Test
     void shouldCreateAccountWithInitialBalance() {
-        TransactionObserver logger = (
-                transactionId,
-                accountNumber,
-                transactionType,
-                amount
-        ) -> {
-        };
         AccountNumber accountNumber = new AccountNumber("12345");
         Money initialBalance = new Money(1000.00);
 
-        BankAccount account = new BankAccount(logger, accountNumber, "John Doe", initialBalance);
+        BankAccount account = BankAccount.create(accountNumber, "John Doe");
+        account.deposit(initialBalance);
 
         assertEquals("12345", account.getAccountNumber().number());
         assertEquals(1000.00, account.getBalance().amount());
@@ -30,58 +27,42 @@ public class BankAccountTest {
 
     @Test
     void shouldDepositMoneyIntoAccount() {
-        TransactionObserver logger = (
-                transactionId,
-                accountNumber,
-                transactionType,
-                amount
-        ) -> {
-        };
+
         AccountNumber accountNumber = new AccountNumber("12345");
         Money initialBalance = new Money(1000.00);
-        BankAccount account = new BankAccount(logger, accountNumber, "John Doe", initialBalance);
+        BankAccount account = BankAccount.create(accountNumber, "John Doe");
+        account.deposit(initialBalance);
 
         Money depositAmount = new Money(500.00);
-        account.deposit(UUID.randomUUID().toString(), depositAmount);
+        account.deposit(depositAmount);
 
         assertEquals(1500.00, account.getBalance().amount());
     }
 
     @Test
     void shouldNotDepositNegativeAmount() {
-        TransactionObserver logger = (
-                transactionId,
-                accountNumber,
-                transactionType,
-                amount
-        ) -> {
-        };
+
         AccountNumber accountNumber = new AccountNumber("12345");
         Money initialBalance = new Money(1000.00);
-        BankAccount account = new BankAccount(logger, accountNumber, "John Doe", initialBalance);
+        BankAccount account = BankAccount.create(accountNumber, "John Doe");
+        account.deposit(initialBalance);
 
         Money negativeDeposit = new Money(-500.00);
-        account.deposit(UUID.randomUUID().toString(), negativeDeposit);
+        account.deposit(negativeDeposit);
 
         assertEquals(1000.00, account.getBalance().amount());
     }
 
     @Test
     void shouldWithdrawMoneyFromAccount() {
-        TransactionObserver logger = (
-                transactionId,
-                accountNumber,
-                transactionType,
-                amount
-        ) -> {
-        };
+
         AccountNumber accountNumber = new AccountNumber("12345");
         Money initialBalance = new Money(1000.00);
-        BankAccount account = new BankAccount(logger, accountNumber, "John Doe", initialBalance);
-
+        BankAccount account = BankAccount.create(accountNumber, "John Doe");
+        account.deposit(initialBalance);
         Money withdrawalAmount = new Money(500.00);
         try {
-            account.withdraw(UUID.randomUUID().toString(), withdrawalAmount);
+            account.withdraw(withdrawalAmount);
         } catch (Exception e) {
             fail();
         }
@@ -91,20 +72,13 @@ public class BankAccountTest {
 
     @Test
     void shouldNotWithdrawMoreThanAvailableBalance() {
-        TransactionObserver logger = (
-                transactionId,
-                accountNumber,
-                transactionType,
-                amount
-        ) -> {
-        };
         AccountNumber accountNumber = new AccountNumber("12345");
         Money initialBalance = new Money(1000.00);
-        BankAccount account = new BankAccount(logger, accountNumber, "John Doe", initialBalance);
-
+        BankAccount account = BankAccount.create(accountNumber, "John Doe");
+        account.deposit(initialBalance);
         Money excessiveWithdrawal = new Money(1500.00);
         try {
-            account.withdraw(UUID.randomUUID().toString(), excessiveWithdrawal);
+            account.withdraw(excessiveWithdrawal);
             fail();
         } catch (InsufficientAmountException e) {
             assertEquals(1000.00, account.getBalance().amount());
@@ -114,35 +88,19 @@ public class BankAccountTest {
 
     @Test
     void shouldTransferMoneyBetweenAccounts() {
-        TransactionObserver logger = (
-                transactionId,
-                accountNumber,
-                transactionType,
-                amount
-        ) -> {
-        };
-
         AccountNumber senderAccountNumber = new AccountNumber("12345");
         Money senderInitialBalance = new Money(1000.00);
-        BankAccount senderAccount = new BankAccount(
-                logger,
-                senderAccountNumber,
-                "John Doe",
-                senderInitialBalance
-        );
+        BankAccount senderAccount = BankAccount.create(senderAccountNumber, "John Doe");
+        senderAccount.deposit(senderInitialBalance);
 
         AccountNumber receiverAccountNumber = new AccountNumber("67890");
         Money receiverInitialBalance = new Money(500.00);
-        BankAccount receiverAccount = new BankAccount(
-                logger,
-                receiverAccountNumber,
-                "Jane Smith",
-                receiverInitialBalance
-        );
+        BankAccount receiverAccount = BankAccount.create(receiverAccountNumber, "Jane Smith");
+        receiverAccount.deposit(receiverInitialBalance);
 
         Money transferAmount = new Money(300.00);
         try {
-            senderAccount.transfer(UUID.randomUUID().toString(), receiverAccount, transferAmount);
+            senderAccount.transfer(receiverAccount, transferAmount);
         } catch (Exception e) {
             fail();
         }
@@ -153,35 +111,19 @@ public class BankAccountTest {
 
     @Test
     void shouldNotTransferMoreThanAvailableBalance() {
-        TransactionObserver logger = (
-                transactionId,
-                accountNumber,
-                transactionType,
-                amount
-        ) -> {
-        };
-
         AccountNumber senderAccountNumber = new AccountNumber("12345");
         Money senderInitialBalance = new Money(1000.00);
-        BankAccount senderAccount = new BankAccount(
-                logger,
-                senderAccountNumber,
-                "John Doe",
-                senderInitialBalance
-        );
+        BankAccount senderAccount = BankAccount.create(senderAccountNumber, "John Doe");
+        senderAccount.deposit(senderInitialBalance);
 
         AccountNumber receiverAccountNumber = new AccountNumber("67890");
         Money receiverInitialBalance = new Money(500.00);
-        BankAccount receiverAccount = new BankAccount(
-                logger,
-                receiverAccountNumber,
-                "Jane Smith",
-                receiverInitialBalance
-        );
+        BankAccount receiverAccount = BankAccount.create(receiverAccountNumber, "Jane Smith");
+        receiverAccount.deposit(receiverInitialBalance);
 
         Money excessiveTransfer = new Money(1500.00);
         try {
-            senderAccount.transfer(UUID.randomUUID().toString(), receiverAccount, excessiveTransfer);
+            senderAccount.transfer(receiverAccount, excessiveTransfer);
             fail();
         } catch (InsufficientAmountException e) {
             assertEquals(1000.00, senderAccount.getBalance().amount());
@@ -192,18 +134,10 @@ public class BankAccountTest {
 
     @Test
     void shouldThrowExceptionOnConcurrentWithdrawalsWithInsufficientBalance() throws InterruptedException {
-
-        TransactionObserver logger = (
-                transactionId,
-                accountNumber,
-                transactionType,
-                amount
-        ) -> {
-        };
-
         AccountNumber accountNumber = new AccountNumber("12345");
         Money initialBalance = new Money(1000.00);
-        BankAccount account = new BankAccount(logger, accountNumber, "John Doe", initialBalance);
+        BankAccount account = BankAccount.create(accountNumber, "John Doe");
+        account.deposit(initialBalance);
 
         Money firstWithdrawalAmount = new Money(1000.00);
         Money secondWithdrawalAmount = new Money(500.00);
@@ -213,7 +147,7 @@ public class BankAccountTest {
 
         Thread thread1 = new Thread(() -> {
             try {
-                account.withdraw(UUID.randomUUID().toString(), firstWithdrawalAmount);
+                account.withdraw(firstWithdrawalAmount);
             } catch (InsufficientAmountException e) {
                 firstThreadExceptionThrown.set(true);
             }
@@ -221,7 +155,7 @@ public class BankAccountTest {
 
         Thread thread2 = new Thread(() -> {
             try {
-                account.withdraw(UUID.randomUUID().toString(), secondWithdrawalAmount);
+                account.withdraw(secondWithdrawalAmount);
             } catch (InsufficientAmountException e) {
                 secondThreadExceptionThrown.set(true);
             }
@@ -244,32 +178,22 @@ public class BankAccountTest {
 
     @Test
     void shouldThrowExceptionOnConcurrentWithdrawalAndTransferWithInsufficientBalance() throws InterruptedException {
-        TransactionObserver logger = (
-                transactionId,
-                accountNumber,
-                transactionType,
-                amount
-        ) -> {
-        };
         AccountNumber accountNumber = new AccountNumber("12345");
         Money initialBalance = new Money(1000.00);
-        BankAccount account = new BankAccount(logger, accountNumber, "John Doe", initialBalance);
+        BankAccount account = BankAccount.create(accountNumber, "John Doe");
+        account.deposit(initialBalance);
 
         AccountNumber recipientAccountNumber = new AccountNumber("67890");
         Money recipientInitialBalance = new Money(500.00);
-        BankAccount recipientAccount = new BankAccount(
-                logger,
-                recipientAccountNumber,
-                "Jane Smith",
-                recipientInitialBalance
-        );
+        BankAccount recipientAccount = BankAccount.create(recipientAccountNumber, "Jane Smith");
+        recipientAccount.deposit(recipientInitialBalance);
 
         AtomicBoolean firstThreadExceptionThrown = new AtomicBoolean(false);
         AtomicBoolean secondThreadExceptionThrown = new AtomicBoolean(false);
 
         Thread thread1 = new Thread(() -> {
             try {
-                account.withdraw(UUID.randomUUID().toString(), new Money(1000.00)); // Reduce balance to 0
+                account.withdraw(new Money(1000.00)); // Reduce balance to 0
             } catch (InsufficientAmountException e) {
                 firstThreadExceptionThrown.set(true);
             }
@@ -277,7 +201,7 @@ public class BankAccountTest {
 
         Thread thread2 = new Thread(() -> {
             try {
-                account.transfer(UUID.randomUUID().toString(), recipientAccount, new Money(1000.00));
+                account.transfer(recipientAccount, new Money(1000.00));
             } catch (InsufficientAmountException e) {
                 secondThreadExceptionThrown.set(true);
             }
@@ -300,29 +224,5 @@ public class BankAccountTest {
             fail();
         }
     }
-
-    @Test
-    void shouldNotifyObserversOnDeposit() {
-        AtomicBoolean notified = new AtomicBoolean(false);
-        TransactionObserver logger = (
-                transactionId,
-                accountNumber,
-                transactionType,
-                amount
-        ) -> {
-            notified.set(true);
-        };
-
-        BankAccount account = new BankAccount(
-                logger,
-                new AccountNumber("12345"),
-                "John Doe",
-                new Money(1000.00)
-        );
-        account.deposit(UUID.randomUUID().toString(), new Money(500.00));
-
-        assertTrue(notified.get());
-    }
-
 
 }

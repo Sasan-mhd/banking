@@ -1,4 +1,4 @@
-package com.sasan.banking.domain.model;
+package com.sasan.banking.domain.service.transaction.observer;
 
 public interface TransactionObserver {
 
@@ -8,4 +8,5 @@ public interface TransactionObserver {
             TransactionType transactionType,
             double amount
     );
+
 }

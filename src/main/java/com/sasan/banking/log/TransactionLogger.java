@@ -1,7 +1,7 @@
 package com.sasan.banking.log;
 
-import com.sasan.banking.domain.model.TransactionObserver;
-import com.sasan.banking.domain.model.TransactionType;
+import com.sasan.banking.domain.service.transaction.observer.TransactionObserver;
+import com.sasan.banking.domain.service.transaction.observer.TransactionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -39,4 +39,5 @@ public class TransactionLogger implements TransactionObserver {
             throw new RuntimeException("Failed to write to transaction log", e);
         }
     }
+
 }

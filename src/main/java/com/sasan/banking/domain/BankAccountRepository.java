@@ -5,6 +5,6 @@ import com.sasan.banking.domain.model.BankAccount;
 
 public interface BankAccountRepository {
     public BankAccount get(AccountNumber accountNumber);
-    public void save(BankAccount bankAccount);
+    public void save(BankAccount bankAccount) throws ConcurrentTransactionException;
     public boolean exist(AccountNumber accountNumber);
 }

@@ -1,12 +1,10 @@
 package com.sasan.banking.ui.console;
 
-import com.sasan.banking.domain.AccountDoesNotExistException;
-import com.sasan.banking.domain.AccountNumberAlreadyExistsException;
-import com.sasan.banking.domain.model.InsufficientAmountException;
-import com.sasan.banking.domain.model.AccountNumber;
-import com.sasan.banking.domain.Bank;
-import com.sasan.banking.domain.model.BankAccount;
-import com.sasan.banking.domain.model.Money;
+import com.sasan.banking.domain.service.transaction.AccountDoesNotExistException;
+import com.sasan.banking.domain.service.transaction.AccountNumberAlreadyExistsException;
+import com.sasan.banking.domain.ConcurrentTransactionException;
+import com.sasan.banking.domain.model.*;
+import com.sasan.banking.application.Bank;
 
 import java.util.Scanner;
 
@@ -68,8 +66,8 @@ public class ConsoleUI {
         try {
             bank.createAccount(new AccountNumber(accountNumber), accountHolderName, new Money(initialBalance));
             System.out.println("Account created successfully.");
-        } catch (AccountNumberAlreadyExistsException e) {
-            System.out.println("Account number already exists.");
+        } catch (AccountException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -83,8 +81,8 @@ public class ConsoleUI {
         try {
             bank.deposit(new AccountNumber(accountNumber), new Money(amount));
             System.out.println("Deposit successful.");
-        } catch (AccountDoesNotExistException e) {
-            System.out.println("Account doesn't exist.");
+        } catch (AccountException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -98,10 +96,8 @@ public class ConsoleUI {
         try {
             bank.withdraw(new AccountNumber(accountNumber), new Money(amount));
             System.out.println("Withdrawal successful.");
-        } catch (InsufficientAmountException e) {
-            System.out.println("Insufficient balance.");
-        } catch (AccountDoesNotExistException e) {
-            System.out.println("Account doesn't exist.");
+        } catch (AccountException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -117,10 +113,8 @@ public class ConsoleUI {
         try {
             bank.transfer(new AccountNumber(senderAccountNumber), new AccountNumber(recipientAccountNumber), new Money(amount));
             System.out.println("Transfer successful.");
-        } catch (InsufficientAmountException e) {
-            System.out.println("Insufficient balance.");
-        } catch (AccountDoesNotExistException e) {
-            System.out.println("Account doesn't exist.");
+        } catch (AccountException e) {
+            System.out.println(e.getMessage());
         }
     }
 
